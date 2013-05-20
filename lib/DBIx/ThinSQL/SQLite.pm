@@ -8,7 +8,7 @@ use Exporter::Tidy all => [
       thinsql_create_methods/
 ];
 
-our $VERSION = "0.0.1";
+our $VERSION = "0.0.2";
 
 my %sqlite_functions = (
     debug => sub {
@@ -256,7 +256,7 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 =head1 VERSION
 
-0.0.1 Development release.
+0.0.2 Development release.
 
 =head1 SYNOPSIS
 

@@ -59,5 +59,16 @@
       }
    },
    "release_status" : "unstable",
-   "version" : "0.0.1"
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite/issues"
+      },
+      "homepage" : "https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/mlawren/p5-DBIx-ThinSQL-SQLite.git",
+         "web" : "https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite"
+      }
+   },
+   "version" : "0.0.2"
 }
