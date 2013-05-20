@@ -38,7 +38,11 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
     });
 
     $db->do(q{
-        SELECT nextval('tablename');
+        SELECT create_sequence('name');
+    });
+
+    $db->do(q{
+        SELECT nextval('name');
     });
 
     # If you are using DBIx::ThinSQL instead of DBI
@@ -46,8 +50,8 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
     thinsql_create_methods(qw/create_sequence nextval/);
 
-    $db->create_sequence('tablename');
-    $db->nextval('tablename');
+    $db->create_sequence('othername');
+    $db->nextval('othername');
 
 # DESCRIPTION
 
@@ -68,14 +72,12 @@ handle `$dbh`, which can be any combination of the following.
 
     This function called from SQL context results in a `debug()` call to a
     [Log::Any](http://search.cpan.org/perldoc?Log::Any) instance. If the first item of `@items` begins with
-    `/^select/i` then that statement will be run with the result included
+    `/^select/i` then that statement will be run and the result included
     in the output as well.
 
     - create\_sequence( $name )
 
-    Create a sequence in the database with name $name. An "INTEGER PRIMARY
-    KEY AUTOINCREMENT" column in SQLite will automatically create a
-    sequence for that table, making this function redundant in that case.
+    Create a sequence in the database with name $name.
 
     - nextval( $name ) -> Int
 
@@ -84,6 +86,35 @@ handle `$dbh`, which can be any combination of the following.
     - currval( $name ) -> Int
 
     Return the current value of the sequence.
+
+If [Digest::SHA](http://search.cpan.org/perldoc?Digest::SHA) is installed then the following functions can also be
+created.
+
+    - sha1( @args ) -> bytes
+
+    Calculate the SHA digest of all arguments concatenated together and
+    return it in a 20-byte binary form. Unfortunately it seems that the
+    underlying SQLite C sqlite\_create\_function() provides no way to
+    identify the result as a blob, so you must always manually cast the
+    result in SQL like so:
+
+        CAST(sha1(SQLITE_EXPRESSION) AS blob)
+
+    - sha1\_hex( @args ) -> hexidecimal
+
+    Calculate the SQLite digest of all arguments concatenated together and
+    return it in a 40-character hexidecimal form.
+
+    - sha1\_base64( @args ) -> base64
+
+    Calculate the SQLite digest of all arguments concatenated together and
+    return it in a base64 encoded form.
+
+            - agg\_sha1( @args ) -> bytes
+        - agg\_sha1\_hex( @args ) -> hexidecimal
+    - agg\_sha1\_base64( @args ) -> base64
+
+    These aggregate functions are for use with statements using GROUP BY.
 
 Note that user-defined SQLite functions are only valid for the current
 session.  They must be created each time you connect to the database.
@@ -95,9 +126,7 @@ combination of the following.
 
     - create\_sequence( $name )
 
-    Create a sequence in the database with name $name. An "INTEGER PRIMARY
-    KEY AUTOINCREMENT" column in SQLite will automatically create a
-    sequence for that table, making this function redundant in that case.
+    Create a sequence in the database with name $name.
 
     - nextval( $name ) -> Int
 
@@ -107,9 +136,14 @@ combination of the following.
 
     Return the current value of the sequence.
 
-The methods are added to a Perl class, so will be valid for __any__
-[DBIx::ThinSQL](http://search.cpan.org/perldoc?DBIx::ThinSQL) handle, even those not connected to an SQLite
-database.
+The methods are added to a Perl class and are therefore available to
+any [DBIx::ThinSQL](http://search.cpan.org/perldoc?DBIx::ThinSQL) handle.
+
+# CAVEATS
+
+An "autoincrement" integer primary key column in SQLite automatically
+creates a sequence for that table, which is incompatible with this
+module. Keep the two sequence types separate.
 
 # SEE ALSO
 
