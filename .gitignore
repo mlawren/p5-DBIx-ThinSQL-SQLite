@@ -25,4 +25,6 @@ MYMETA.*
 
 /DBIx-ThinSQL-SQLite-*
 
+dbix-thinsql-sqlite-*
+
 extlib/
