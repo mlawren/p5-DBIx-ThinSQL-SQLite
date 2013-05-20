@@ -53,7 +53,7 @@ my %sqlite_functions = (
         require Digest::SHA;
         my $dbh = shift;
         $dbh->sqlite_create_function(
-            'sha1', 1,
+            'sha1', -1,
             sub {
                 Digest::SHA::sha1(
                     map { utf8::is_utf8($_) ? Encode::encode_utf8($_) : $_ }
@@ -67,7 +67,7 @@ my %sqlite_functions = (
         my $dbh = shift;
         $dbh->sqlite_create_function(
             'sha1_hex',
-            1,
+            -1,
             sub {
                 Digest::SHA::sha1_hex(
                     map { utf8::is_utf8($_) ? Encode::encode_utf8($_) : $_ }
@@ -81,7 +81,7 @@ my %sqlite_functions = (
         my $dbh = shift;
         $dbh->sqlite_create_function(
             'sha1_base64',
-            1,
+            -1,
             sub {
                 Digest::SHA::sha1_base64(
                     map { utf8::is_utf8($_) ? Encode::encode_utf8($_) : $_ }

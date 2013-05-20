@@ -59,6 +59,10 @@ subtest "sqlite_create_functions", sub {
         $log = $logfile->slurp;
         like $log, qr/select.*1214/s, 'debug select';
 
+        $db->do(q{select debug("select ? || ? || ?", 'lazy','fox','jump')});
+        $log = $logfile->slurp;
+        like $log, qr/lazyfoxjump/s, 'debug select multiple';
+
         sqlite_create_functions( $db, qw/create_sequence currval nextval/ );
 
         like exception { $db->selectrow_array("select nextval('testseq')") },
@@ -129,6 +133,20 @@ _ENDSQL_
             is $bytes,  $sha1,        'sha1';
             is $hex,    $sha1_hex,    'sha1_hex';
             is $base64, $sha1_base64, 'sha1_base64';
+
+            ( $bytes, $hex, $base64 ) = $db->selectrow_array(
+                q{
+                select sha1(1,2,3), sha1_hex(1,2,3), sha1_base64(1,2,3)
+            }
+            );
+
+            $sha1        = Digest::SHA::sha1(1,2,3);
+            $sha1_hex    = Digest::SHA::sha1_hex(1,2,3);
+            $sha1_base64 = Digest::SHA::sha1_base64(1,2,3);
+
+            is $bytes,  $sha1,        'sha1 multi-argument';
+            is $hex,    $sha1_hex,    'sha1_hex multi-argument';
+            is $base64, $sha1_base64, 'sha1_base64 multi-argument';
         }
     };
 };
