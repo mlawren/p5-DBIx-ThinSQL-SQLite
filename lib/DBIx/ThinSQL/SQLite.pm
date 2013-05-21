@@ -17,7 +17,7 @@ my %sqlite_functions = (
         $dbh->sqlite_create_function(
             'debug', -1,
             sub {
-                if ( @_ && defined $_[0] && $_[0] =~ m/^select/i ) {
+                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*select/i ) {
                     my $sql = shift;
                     my $sth = $dbh->prepare($sql);
                     $sth->execute(@_);

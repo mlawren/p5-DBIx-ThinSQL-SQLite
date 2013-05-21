@@ -55,9 +55,10 @@ subtest "sqlite_create_functions", sub {
         my $log = $logfile->slurp;
         like $log, qr/$str/, 'debug logged to Log::Any';
 
-        $db->do(q{select debug("select 1 || 2 || 1 || 4")});
+        $db->do(q{select debug("
+            select 1 || 2 || 1 || 4")});
         $log = $logfile->slurp;
-        like $log, qr/select.*1214/s, 'debug select';
+        like $log, qr/select.*1214/s, 'debug select with leading space';
 
         $db->do(q{select debug("select ? || ? || ?", 'lazy','fox','jump')});
         $log = $logfile->slurp;
