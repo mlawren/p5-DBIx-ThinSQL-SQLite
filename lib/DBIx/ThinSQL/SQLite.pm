@@ -152,6 +152,8 @@ sub _currval {
         )
     );
 
+    $log->debug("nextval('$name') -> ",$val);
+
     return defined $val ? $val : _croak("currval: unknown sequence: $name");
 }
 
@@ -179,6 +181,8 @@ sub _nextval {
               . 'WHERE name = ? AND seq = ?',
             undef, $current + 1, $name, $current
           );
+
+        $log->debug("nextval('$name') -> ",$current+1);
 
         return $current + 1;
     }
