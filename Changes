@@ -1,6 +1,18 @@
-Revision history for Perl extension DBIx-ThinSQL-SQLite
+0.0.3_1 (2013-05-24)
 
-{{$NEXT}}
+    API Changes:
+        - None.
 
-    - original version
+    New Features:
+        - None.
 
+    Enhancements:
+        - Logging of the currval() and nextval() functions
+
+    Bug Fixes:
+        - sha1* functions must accept multiple arguments
+        - Distribution name is now correctly capitalised
+
+0.0.2 (2013-05-20)
+
+    Initial Release

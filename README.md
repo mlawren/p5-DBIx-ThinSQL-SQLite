@@ -4,7 +4,7 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 # VERSION
 
-0.0.2 Development release.
+0.0.3\_1 Development release.
 
 # SYNOPSIS
 
