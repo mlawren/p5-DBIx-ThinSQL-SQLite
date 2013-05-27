@@ -55,8 +55,10 @@ subtest "sqlite_create_functions", sub {
         my $log = $logfile->slurp;
         like $log, qr/$str/, 'debug logged to Log::Any';
 
-        $db->do(q{select debug("
-            select 1 || 2 || 1 || 4")});
+        $db->do(
+            q{select debug("
+            select 1 || 2 || 1 || 4")}
+        );
         $log = $logfile->slurp;
         like $log, qr/select.*1214/s, 'debug select with leading space';
 
@@ -141,9 +143,9 @@ _ENDSQL_
             }
             );
 
-            $sha1        = Digest::SHA::sha1(1,2,3);
-            $sha1_hex    = Digest::SHA::sha1_hex(1,2,3);
-            $sha1_base64 = Digest::SHA::sha1_base64(1,2,3);
+            $sha1 = Digest::SHA::sha1( 1, 2, 3 );
+            $sha1_hex = Digest::SHA::sha1_hex( 1, 2, 3 );
+            $sha1_base64 = Digest::SHA::sha1_base64( 1, 2, 3 );
 
             is $bytes,  $sha1,        'sha1 multi-argument';
             is $hex,    $sha1_hex,    'sha1_hex multi-argument';
