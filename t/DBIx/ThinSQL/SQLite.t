@@ -50,10 +50,10 @@ subtest "sqlite_create_functions", sub {
 
         sqlite_create_functions( $db, qw/debug/ );
         my $str = 'RaNdOm';    # just a random string
-        $db->do("select debug('$str')");
+        $db->do("select debug('$str', '$str')");
 
         my $log = $logfile->slurp;
-        like $log, qr/$str/, 'debug logged to Log::Any';
+        like $log, qr/$str $str/, 'debug logged all args to Log::Any';
 
         $db->do(
             q{select debug("

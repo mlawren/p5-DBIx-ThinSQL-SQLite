@@ -29,7 +29,8 @@ my %sqlite_functions = (
                     );
                 }
                 else {
-                    $log->debug( map { defined $_ ? $_ : 'NULL' } @_ );
+                    $log->debug(
+                        join( ' ', map { defined $_ ? $_ : 'NULL' } @_ ) );
                 }
             }
         );
@@ -152,9 +153,12 @@ sub _currval {
         )
     );
 
-    $log->debug( "nextval('$name') -> ", $val );
+    if ( defined $val ) {
+        $log->debug( "currval('$name') -> " . $val );
+        return $val;
+    }
 
-    return defined $val ? $val : _croak("currval: unknown sequence: $name");
+    _croak("currval: unknown sequence: $name");
 }
 
 sub _nextval {
@@ -182,7 +186,7 @@ sub _nextval {
             undef, $current + 1, $name, $current
           );
 
-        $log->debug( "nextval('$name') -> ", $current + 1 );
+        $log->debug( "nextval('$name') -> " . ( $current + 1 ) );
 
         return $current + 1;
     }

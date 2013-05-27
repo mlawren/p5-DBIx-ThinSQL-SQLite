@@ -12,6 +12,7 @@
     Bug Fixes:
         - sha1* functions must accept multiple arguments
         - Distribution name is now correctly capitalised
+        - Ensure all arguments to debug() are logged
 
 0.0.2 (2013-05-20)
 
