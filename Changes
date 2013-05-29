@@ -8,6 +8,7 @@
 
     Enhancements:
         - Logging of the currval() and nextval() functions
+        - Use log_debug() from DBIx::ThinSQL for debug() output
 
     Bug Fixes:
         - sha1* functions must accept multiple arguments

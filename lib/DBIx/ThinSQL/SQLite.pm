@@ -18,15 +18,7 @@ my %sqlite_functions = (
             'debug', -1,
             sub {
                 if ( @_ && defined $_[0] && $_[0] =~ m/^\s*select/i ) {
-                    my $sql = shift;
-                    my $sth = $dbh->prepare($sql);
-                    $sth->execute(@_);
-                    $log->debug(
-                        $sql . "\n"
-                          . join( "\n",
-                            map { DBI::neat_list($_) }
-                              @{ $sth->fetchall_arrayref } )
-                    );
+                    $dbh->log_debug(@_);
                 }
                 else {
                     $log->debug(
@@ -268,13 +260,13 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 =head1 SYNOPSIS
 
-    use DBI;
+    use DBI::ThinSQL;
     use DBIx::ThinSQL::SQLite
         qw/sqlite_create_functions thinsql_create_methods/;
 
     # Add functions on connect
 
-    my $db = DBI->connect(
+    my $db = DBI::ThinSQL->connect(
         $dsn, undef, undef,
         {
             Callbacks => {
@@ -334,10 +326,10 @@ handle C<$dbh>, which can be any combination of the following.
 
 =item debug( @items )
 
-This function called from SQL context results in a C<debug()> call to a
-L<Log::Any> instance. If the first item of C<@items> begins with
-C</^select/i> then that statement will be run and the result included
-in the output as well.
+This function called from SQL context logs C<@items> with a C<debug()>
+call to a L<Log::Any> instance.  If the first item of C<@items> begins
+with C</^select/i> then that statement will be run and the result
+logged using C<log_debug> from L<DBIx::ThinSQL> instead.
 
 =item create_sequence( $name )
 

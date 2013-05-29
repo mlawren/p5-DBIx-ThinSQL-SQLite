@@ -8,13 +8,13 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 # SYNOPSIS
 
-    use DBI;
+    use DBI::ThinSQL;
     use DBIx::ThinSQL::SQLite
         qw/sqlite_create_functions thinsql_create_methods/;
 
     # Add functions on connect
 
-    my $db = DBI->connect(
+    my $db = DBI::ThinSQL->connect(
         $dsn, undef, undef,
         {
             Callbacks => {
@@ -70,10 +70,10 @@ Two functions are exported on request:
 
     - debug( @items )
 
-        This function called from SQL context results in a `debug()` call to a
-        [Log::Any](http://search.cpan.org/perldoc?Log::Any) instance. If the first item of `@items` begins with
-        `/^select/i` then that statement will be run and the result included
-        in the output as well.
+        This function called from SQL context logs `@items` with a `debug()`
+        call to a [Log::Any](http://search.cpan.org/perldoc?Log::Any) instance.  If the first item of `@items` begins
+        with `/^select/i` then that statement will be run and the result
+        logged using `log_debug` from [DBIx::ThinSQL](http://search.cpan.org/perldoc?DBIx::ThinSQL) instead.
 
     - create\_sequence( $name )
 

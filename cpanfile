@@ -1,6 +1,6 @@
 requires 'perl', '5.008001';
 requires 'DBD::SQLite';
-requires 'DBIx::ThinSQL';
+requires 'DBIx::ThinSQL', '0.0.8';
 requires 'Exporter::Tidy';
 
 on 'test' => sub {
