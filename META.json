@@ -43,7 +43,7 @@
       "runtime" : {
          "requires" : {
             "DBD::SQLite" : "0",
-            "DBIx::ThinSQL" : "0",
+            "DBIx::ThinSQL" : "v0.0.8",
             "Exporter::Tidy" : "0",
             "perl" : "5.008005"
          }
@@ -70,5 +70,5 @@
          "web" : "https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite"
       }
    },
-   "version" : "0.0.3_1"
+   "version" : "0.0.4"
 }

@@ -1,4 +1,4 @@
-0.0.3_1 (2013-05-24)
+0.0.4 (2013-06-11)
 
     API Changes:
         - thinsql_create_methods() becomes create_methods().
