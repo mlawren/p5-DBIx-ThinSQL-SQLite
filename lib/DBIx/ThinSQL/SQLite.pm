@@ -115,9 +115,10 @@ sub _create_sequence {
     # information if we are inside a transaction where the first
     # sequence was created
     if ( !$dbh->selectrow_array('PRAGMA table_info(sqlite_sequence)') ) {
-        $dbh->do( 'CREATE TABLE IF NOT EXISTS '
-              . 'Ekag4iiB(x integer primary key autoincrement)' );
-        $dbh->do('DROP TABLE IF EXISTS Ekag4iiB');
+        my $temp = '_temp' . join( '', map { int( rand($_) ) } 1000 .. 1005 );
+        $dbh->do(
+            'CREATE TABLE ' . $temp . '(x integer primary key autoincrement)' );
+        $dbh->do( 'DROP TABLE ' . $temp );
     }
 
     # the sqlite_sequence table doesn't have any constraints so it
