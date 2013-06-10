@@ -3,12 +3,10 @@ use 5.008005;
 use strict;
 use warnings;
 use Log::Any qw/$log/;
-use Exporter::Tidy all => [
-    qw/sqlite_create_functions
-      thinsql_create_methods/
-];
+use Exporter::Tidy all =>
+  [qw/create_sqlite_sequence create_functions create_methods/];
 
-our $VERSION = "0.0.2";
+our $VERSION = "0.0.4";
 
 my %sqlite_functions = (
     debug => sub {
@@ -17,19 +15,12 @@ my %sqlite_functions = (
         $dbh->sqlite_create_function(
             'debug', -1,
             sub {
-                if ( @_ && defined $_[0] && $_[0] =~ m/^select/i ) {
-                    my $sql = shift;
-                    my $sth = $dbh->prepare($sql);
-                    $sth->execute(@_);
-                    $log->debug(
-                        $sql . "\n"
-                          . join( "\n",
-                            map { DBI::neat_list($_) }
-                              @{ $sth->fetchall_arrayref } )
-                    );
+                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*select/i ) {
+                    $dbh->log_debug(@_);
                 }
                 else {
-                    $log->debug( map { defined $_ ? $_ : 'NULL' } @_ );
+                    $log->debug(
+                        join( ' ', map { defined $_ ? $_ : 'NULL' } @_ ) );
                 }
             }
         );
@@ -53,7 +44,7 @@ my %sqlite_functions = (
         require Digest::SHA;
         my $dbh = shift;
         $dbh->sqlite_create_function(
-            'sha1', 1,
+            'sha1', -1,
             sub {
                 Digest::SHA::sha1(
                     map { utf8::is_utf8($_) ? Encode::encode_utf8($_) : $_ }
@@ -67,7 +58,7 @@ my %sqlite_functions = (
         my $dbh = shift;
         $dbh->sqlite_create_function(
             'sha1_hex',
-            1,
+            -1,
             sub {
                 Digest::SHA::sha1_hex(
                     map { utf8::is_utf8($_) ? Encode::encode_utf8($_) : $_ }
@@ -81,7 +72,7 @@ my %sqlite_functions = (
         my $dbh = shift;
         $dbh->sqlite_create_function(
             'sha1_base64',
-            1,
+            -1,
             sub {
                 Digest::SHA::sha1_base64(
                     map { utf8::is_utf8($_) ? Encode::encode_utf8($_) : $_ }
@@ -112,20 +103,25 @@ my %sqlite_functions = (
 
 sub _croak { require Carp; goto &Carp::croak }
 
+sub create_sqlite_sequence {
+    my $dbh = shift;
+
+    local $dbh->{RaiseError} = 1;
+    local $dbh->{PrintError} = 0;
+
+    my $temp = '_temp' . join( '', map { int( rand($_) ) } 1000 .. 1005 );
+    $dbh->do("CREATE TABLE $temp(x integer primary key autoincrement)");
+    $dbh->do("DROP TABLE $temp");
+
+    return;
+}
+
 sub _create_sequence {
     my $dbh = shift;
     my $name = shift || _croak('usage: create_sequence($name)');
 
-    # The sqlite_sequence table doesn't exist until an
-    # autoincrement table has been created.
-    # IF NOT EXISTS is used because table_info may not return any
-    # information if we are inside a transaction where the first
-    # sequence was created
-    if ( !$dbh->selectrow_array('PRAGMA table_info(sqlite_sequence)') ) {
-        $dbh->do( 'CREATE TABLE IF NOT EXISTS '
-              . 'Ekag4iiB(x integer primary key autoincrement)' );
-        $dbh->do('DROP TABLE IF EXISTS Ekag4iiB');
-    }
+    local $dbh->{RaiseError} = 1;
+    local $dbh->{PrintError} = 0;
 
     # the sqlite_sequence table doesn't have any constraints so it
     # would be possible to insert the same sequence twice. Check if
@@ -137,6 +133,7 @@ sub _create_sequence {
         )
     );
     $val && _croak("create_sequence: sequence already exists: $name");
+    $log->debug("INSERT INTO sqlite_sequence VALUES('$name',0)");
     $dbh->do( 'INSERT INTO sqlite_sequence(name,seq) VALUES(?,?)',
         undef, $name, 0 );
 }
@@ -145,6 +142,9 @@ sub _currval {
     my $dbh = shift;
     my $name = shift || die 'usage: currval($name)';
 
+    local $dbh->{RaiseError} = 1;
+    local $dbh->{PrintError} = 0;
+
     my ($val) = (
         $dbh->selectrow_array(
             'SELECT seq FROM sqlite_sequence WHERE name = ?',
@@ -152,13 +152,20 @@ sub _currval {
         )
     );
 
-    return defined $val ? $val : _croak("currval: unknown sequence: $name");
+    if ( defined $val ) {
+        $log->debug( "currval('$name') -> " . $val );
+        return $val;
+    }
+
+    _croak("currval: unknown sequence: $name");
 }
 
 sub _nextval {
     my $dbh = shift;
     my $name = shift || die 'usage: nextval($name)';
 
+    local $dbh->{RaiseError} = 1;
+    local $dbh->{PrintError} = 0;
     my $val;
 
     my $i = 0;
@@ -180,12 +187,14 @@ sub _nextval {
             undef, $current + 1, $name, $current
           );
 
+        $log->debug( "nextval('$name') -> " . ( $current + 1 ) );
+
         return $current + 1;
     }
 }
 
-sub sqlite_create_functions {
-    _croak('usage: sqlite_create_functions($dbh,@functions)') unless @_ >= 2;
+sub create_functions {
+    _croak('usage: create_functions($dbh,@functions)') unless @_ >= 2;
 
     my $dbh = shift;
     _croak('handle has no sqlite_create_function!')
@@ -199,13 +208,14 @@ sub sqlite_create_functions {
 }
 
 my %thinsql_methods = (
-    create_sequence => \&_create_sequence,
-    currval         => \&_currval,
-    nextval         => \&_nextval,
+    create_sqlite_sequence => \&_create_sqlite_sequence,
+    create_sequence        => \&_create_sequence,
+    currval                => \&_currval,
+    nextval                => \&_nextval,
 );
 
-sub thinsql_create_methods {
-    _croak('usage: thinsql_create_methods(@methods)') unless @_ >= 1;
+sub create_methods {
+    _croak('usage: create_methods(@methods)') unless @_ >= 1;
 
     foreach my $name (@_) {
         my $subref = $thinsql_methods{$name};
@@ -256,52 +266,31 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 =head1 VERSION
 
-0.0.2 Development release.
+0.0.4 (2013-06-11) Development release.
 
 =head1 SYNOPSIS
 
-    use DBI;
+    use DBIx::ThinSQL;
     use DBIx::ThinSQL::SQLite
-        qw/sqlite_create_functions thinsql_create_methods/;
+        qw/create_functions
+           create_methods
+           create_sqlite_sequence/;
 
-    # Add functions on connect
+    my $db = DBIx::ThinSQL->connect('dbi:SQLite:dbname=...');
 
-    my $db = DBI->connect(
-        $dsn, undef, undef,
-        {
-            Callbacks => {
-                connected => sub {
-                    my $dbh = shift;
-                    sqlite_create_functions( $dbh,
-                        qw/debug nextval/ );
-                  }
-            },
+    # Call once only to initialize permanently
+    create_sqlite_sequence($db);
 
-        }
-    );
+    # Call after every connect to the database
+    create_functions( $db, qw/ debug create_sequence currval / );
 
-    # Or manually at any time
-    sqlite_create_functions( $db, qw/currval/ );
+    # Call once every program run
+    create_methods(qw/create_sequence nextval/);
 
-    # Then in your SQL you can use those functions
-
-    $db->do(q{
-        SELECT debug('logged via Log::Any->debug');
-    });
-
-    $db->do(q{
-        SELECT create_sequence('name');
-    });
-
-    $db->do(q{
-        SELECT nextval('name');
-    });
-
-    # If you are using DBIx::ThinSQL instead of DBI
-    # you can also use the sequence functions as methods
-
-    thinsql_create_methods(qw/create_sequence nextval/);
-
+    # Then use SQL functions or Perl methods as required
+    $db->do(q{ SELECT debug('logged via Log::Any->debug'); });
+    $db->do(q{ SELECT create_sequence('name'); });
+    $db->do(q{ SELECT nextval('name'); });
     $db->create_sequence('othername');
     $db->nextval('othername');
 
@@ -310,26 +299,37 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 B<DBIx::ThinSQL::SQLite> adds various functions to the SQL syntax
 understood by SQLite, using the I<sqlite_create_function()> and
 I<sqlite_create_aggregate_function()> methods of L<DBD::SQLite>. It
-also adds sequence methods to your database handles when you are using
-L<DBIx::ThinSQL>.
+also adds sequence methods to L<DBIx::ThinSQL> database handles.
 
-Two functions are exported on request:
+The following functions are exported on request:
 
 =over
 
-=item sqlite_create_functions( $dbh, @functions )
+=item create_sqlite_sequence( $dbh )
+
+Ensure that the C<sqlite_sequence> table exists.  This function must be
+called on the database (once only - the changes are permanent) before
+any of the other sequence related functions or methods will work.
+
+This function works by creating (and dropping) a table with an
+C<INTEGER PRIMARY KEY AUTOINCREMENT> definition. If you are using the
+sequence support from this module you probably B<don't> want to be
+creating your own tables with the autoincrement feature, as it may
+clash with this module.
+
+=item create_functions( $dbh, @functions )
 
 Add C<@functions> to the SQL understood by SQLite for the database
-handle C<$dbh>, which can be any combination of the following.
+handle C<$dbh>. C<@functions> can be any combination of the following:
 
 =over
 
 =item debug( @items )
 
-This function called from SQL context results in a C<debug()> call to a
-L<Log::Any> instance. If the first item of C<@items> begins with
-C</^select/i> then that statement will be run and the result included
-in the output as well.
+This function called from SQL context logs C<@items> with a C<debug()>
+call to a L<Log::Any> instance.  If the first item of C<@items> begins
+with C</^select/i> then that statement will be run and the result
+logged using C<log_debug> from L<DBIx::ThinSQL> instead.
 
 =item create_sequence( $name )
 
@@ -382,11 +382,27 @@ These aggregate functions are for use with statements using GROUP BY.
 
 Note that user-defined SQLite functions are only valid for the current
 session.  They must be created each time you connect to the database.
+You can have this happen automatically at connect time by taking
+advantage of the L<DBI> C<Callbacks> attribute:
 
-=item thinsql_create_methods( @methods )
+    my $db = DBI::ThinSQL->connect(
+        $dsn, undef, undef,
+        {
+            Callbacks => {
+                connected => sub {
+                    my $dbh = shift;
+                    create_functions( $dbh,
+                        qw/debug nextval/ );
+                  }
+            },
+
+        }
+    );
+
+=item create_methods( @methods )
 
 Add C<@methods> to the DBIx::ThinSQL::db class which can be any
-combination of the following.
+combination of the following:
 
 =over
 
@@ -404,16 +420,10 @@ Return the current value of the sequence.
 
 =back
 
-The methods are added to a Perl class and are therefore available to
+These methods are added to a Perl class and are therefore available to
 any L<DBIx::ThinSQL> handle.
 
 =back
-
-=head1 CAVEATS
-
-An "autoincrement" integer primary key column in SQLite automatically
-creates a sequence for that table, which is incompatible with this
-module. Keep the two sequence types separate.
 
 =head1 SEE ALSO
 
@@ -431,3 +441,4 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
 Free Software Foundation; either version 3 of the License, or (at your
 option) any later version.
+

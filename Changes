@@ -1,6 +1,24 @@
-Revision history for Perl extension DBIx-ThinSQL-SQLite
+0.0.4 (2013-06-11)
 
-{{$NEXT}}
+    API Changes:
+        - thinsql_create_methods() becomes create_methods().
+        - sqlite_create_functions() becomes create_functions().
+        - New function create_sqlite_sequence() has been extracted out
+          of the old create_sequence() function/method where it was
+          actually failing.
 
-    - original version
+    New Features:
+        - None.
 
+    Enhancements:
+        - Logging of the currval() and nextval() functions
+        - Use log_debug() from DBIx::ThinSQL for debug() output
+
+    Bug Fixes:
+        - sha1* functions must accept multiple arguments
+        - Distribution name is now correctly capitalised
+        - Ensure all arguments to debug() are logged
+
+0.0.2 (2013-05-20)
+
+    Initial Release

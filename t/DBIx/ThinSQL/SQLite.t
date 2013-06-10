@@ -1,7 +1,8 @@
 use strict;
 use warnings;
 use DBIx::ThinSQL;
-use DBIx::ThinSQL::SQLite qw/sqlite_create_functions thinsql_create_methods/;
+use DBIx::ThinSQL::SQLite
+  qw/create_sqlite_sequence create_functions create_methods/;
 use File::chdir;
 use Log::Any::Adapter;
 use Path::Tiny;
@@ -19,8 +20,8 @@ sub run_in_tempdir (&) {
     $CWD = $cwd;
 }
 
-subtest "sqlite_create_functions", sub {
-    isa_ok \&sqlite_create_functions, 'CODE';
+subtest "create_functions", sub {
+    isa_ok \&create_functions, 'CODE';
 
     run_in_tempdir {
         my $logfile = path('log.txt');
@@ -38,33 +39,45 @@ subtest "sqlite_create_functions", sub {
               "no existing func $func";
         }
 
-        like exception { sqlite_create_functions() }, qr/usage:/, 'usage';
+        like exception { create_functions() }, qr/usage:/, 'usage';
 
-        like exception { sqlite_create_functions( 1, 2 ) },
+        like exception { create_functions( 1, 2 ) },
           qr/handle has no sqlite_create_function/,
           'usage no handle';
 
-        like exception { sqlite_create_functions( $db, 'unknown' ) },
+        like exception { create_functions( $db, 'unknown' ) },
           qr/unknown function/,
           'unknown function';
 
-        sqlite_create_functions( $db, qw/debug/ );
+        create_functions( $db, qw/debug/ );
         my $str = 'RaNdOm';    # just a random string
-        $db->do("select debug('$str')");
+        $db->do("select debug('$str', '$str')");
 
         my $log = $logfile->slurp;
-        like $log, qr/$str/, 'debug logged to Log::Any';
+        like $log, qr/$str $str/, 'debug logged all args to Log::Any';
 
-        $db->do(q{select debug("select 1 || 2 || 1 || 4")});
+        $db->do(
+            q{select debug("
+            select 1 || 2 || 1 || 4")}
+        );
         $log = $logfile->slurp;
-        like $log, qr/select.*1214/s, 'debug select';
+        like $log, qr/select.*1214/s, 'debug select with leading space';
 
-        sqlite_create_functions( $db, qw/create_sequence currval nextval/ );
+        $db->do(q{select debug("select ? || ? || ?", 'lazy','fox','jump')});
+        $log = $logfile->slurp;
+        like $log, qr/lazyfoxjump/s, 'debug select multiple';
+
+        create_functions( $db, qw/create_sequence currval nextval/ );
+
+        # manually create sqlite_sequence
+        $db->do('create table x(id integer primary key autoincrement)');
+        $db->do('drop table x');
 
         like exception { $db->selectrow_array("select nextval('testseq')") },
           qr/unknown sequence/, 'seq not found';
 
         $db->do(q{select create_sequence('testseq')});
+        $db->do(q{select create_sequence('testseq2')});
 
         my ($res) = $db->selectrow_array(q{select currval('testseq')});
         is $res, 0, 'currval';
@@ -85,7 +98,7 @@ subtest "sqlite_create_functions", sub {
             plan skip_all => 'require Digest::SHA for sha functions'
               unless eval { require Digest::SHA };
 
-            sqlite_create_functions( $db, qw/sha1 sha1_hex sha1_base64/ );
+            create_functions( $db, qw/sha1 sha1_hex sha1_base64/ );
 
             $db->do(<<_ENDSQL_);
 CREATE TABLE x(
@@ -129,12 +142,26 @@ _ENDSQL_
             is $bytes,  $sha1,        'sha1';
             is $hex,    $sha1_hex,    'sha1_hex';
             is $base64, $sha1_base64, 'sha1_base64';
+
+            ( $bytes, $hex, $base64 ) = $db->selectrow_array(
+                q{
+                select sha1(1,2,3), sha1_hex(1,2,3), sha1_base64(1,2,3)
+            }
+            );
+
+            $sha1 = Digest::SHA::sha1( 1, 2, 3 );
+            $sha1_hex = Digest::SHA::sha1_hex( 1, 2, 3 );
+            $sha1_base64 = Digest::SHA::sha1_base64( 1, 2, 3 );
+
+            is $bytes,  $sha1,        'sha1 multi-argument';
+            is $hex,    $sha1_hex,    'sha1_hex multi-argument';
+            is $base64, $sha1_base64, 'sha1_base64 multi-argument';
         }
     };
 };
 
-subtest "thinsql_create_methods", sub {
-    isa_ok \&thinsql_create_methods, 'CODE';
+subtest "create_methods", sub {
+    isa_ok \&create_methods, 'CODE';
 
     run_in_tempdir {
         my $db = DBIx::ThinSQL->connect( 'dbi:SQLite:dbname=test.sqlite3',
@@ -145,11 +172,13 @@ subtest "thinsql_create_methods", sub {
             ok !$db->can($method), "no existing method $method";
         }
 
-        like exception { thinsql_create_methods('unknown') },
+        like exception { create_methods('unknown') },
           qr/unknown method/,
           'unknown method';
 
-        thinsql_create_methods(qw/create_sequence currval nextval/);
+        create_methods(qw/create_sequence currval nextval/);
+
+        create_sqlite_sequence($db);
 
         $db->create_sequence('testseq');
 
@@ -165,7 +194,7 @@ subtest "thinsql_create_methods", sub {
         $res = $db->currval('testseq');
         is $res, 1, 'currval again';
 
-        sqlite_create_functions( $db, qw/currval/ );
+        create_functions( $db, qw/currval/ );
 
         ($res) = $db->selectrow_array(q{select currval('testseq')});
         is $res, 1, 'method/function match';

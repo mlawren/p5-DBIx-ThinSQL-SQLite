@@ -12,7 +12,7 @@
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
    },
-   "name" : "dbix-thinsql-sqlite",
+   "name" : "DBIx-ThinSQL-SQLite",
    "no_index" : {
       "directory" : [
          "t",
@@ -43,7 +43,7 @@
       "runtime" : {
          "requires" : {
             "DBD::SQLite" : "0",
-            "DBIx::ThinSQL" : "0",
+            "DBIx::ThinSQL" : "v0.0.8",
             "Exporter::Tidy" : "0",
             "perl" : "5.008005"
          }
@@ -70,5 +70,5 @@
          "web" : "https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite"
       }
    },
-   "version" : "0.0.2"
+   "version" : "0.0.4"
 }
