@@ -8,48 +8,27 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 # SYNOPSIS
 
-    use DBI::ThinSQL;
+    use DBIx::ThinSQL;
     use DBIx::ThinSQL::SQLite
-        qw/sqlite_create_functions thinsql_create_methods/;
+        qw/create_functions
+           create_methods
+           create_sqlite_sequence/;
 
-    # Add functions on connect
+    my $db = DBIx::ThinSQL->connect('dbi:SQLite:dbname=...');
 
-    my $db = DBI::ThinSQL->connect(
-        $dsn, undef, undef,
-        {
-            Callbacks => {
-                connected => sub {
-                    my $dbh = shift;
-                    sqlite_create_functions( $dbh,
-                        qw/debug nextval/ );
-                  }
-            },
+    # Call once only to initialize permanently
+    create_sqlite_sequence($db);
 
-        }
-    );
+    # Call after every connect to the database
+    create_functions( $db, qw/ debug create_sequence currval / );
 
-    # Or manually at any time
-    sqlite_create_functions( $db, qw/currval/ );
+    # Call once every program run
+    create_methods(qw/create_sequence nextval/);
 
-    # Then in your SQL you can use those functions
-
-    $db->do(q{
-        SELECT debug('logged via Log::Any->debug');
-    });
-
-    $db->do(q{
-        SELECT create_sequence('name');
-    });
-
-    $db->do(q{
-        SELECT nextval('name');
-    });
-
-    # If you are using DBIx::ThinSQL instead of DBI
-    # you can also use the sequence functions as methods
-
-    thinsql_create_methods(qw/create_sequence nextval/);
-
+    # Then use SQL functions or Perl methods as required
+    $db->do(q{ SELECT debug('logged via Log::Any->debug'); });
+    $db->do(q{ SELECT create_sequence('name'); });
+    $db->do(q{ SELECT nextval('name'); });
     $db->create_sequence('othername');
     $db->nextval('othername');
 
@@ -58,15 +37,26 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 __DBIx::ThinSQL::SQLite__ adds various functions to the SQL syntax
 understood by SQLite, using the _sqlite\_create\_function()_ and
 _sqlite\_create\_aggregate\_function()_ methods of [DBD::SQLite](http://search.cpan.org/perldoc?DBD::SQLite). It
-also adds sequence methods to your database handles when you are using
-[DBIx::ThinSQL](http://search.cpan.org/perldoc?DBIx::ThinSQL).
+also adds sequence methods to [DBIx::ThinSQL](http://search.cpan.org/perldoc?DBIx::ThinSQL) database handles.
 
-Two functions are exported on request:
+The following functions are exported on request:
 
-- sqlite\_create\_functions( $dbh, @functions )
+- create\_sqlite\_sequence( $dbh )
+
+    Ensure that the `sqlite_sequence` table exists.  This function must be
+    called on the database (once only - the changes are permanent) before
+    any of the other sequence related functions or methods will work.
+
+    This function works by creating (and dropping) a table with an
+    `INTEGER PRIMARY KEY AUTOINCREMENT` definition. If you are using the
+    sequence support from this module you probably __don't__ want to be
+    creating your own tables with the autoincrement feature, as it may
+    clash with this module.
+
+- create\_functions( $dbh, @functions )
 
     Add `@functions` to the SQL understood by SQLite for the database
-    handle `$dbh`, which can be any combination of the following.
+    handle `$dbh`. `@functions` can be any combination of the following:
 
     - debug( @items )
 
@@ -118,11 +108,27 @@ Two functions are exported on request:
 
     Note that user-defined SQLite functions are only valid for the current
     session.  They must be created each time you connect to the database.
+    You can have this happen automatically at connect time by taking
+    advantage of the [DBI](http://search.cpan.org/perldoc?DBI) `Callbacks` attribute:
 
-- thinsql\_create\_methods( @methods )
+        my $db = DBI::ThinSQL->connect(
+            $dsn, undef, undef,
+            {
+                Callbacks => {
+                    connected => sub {
+                        my $dbh = shift;
+                        create_functions( $dbh,
+                            qw/debug nextval/ );
+                      }
+                },
+
+            }
+        );
+
+- create\_methods( @methods )
 
     Add `@methods` to the DBIx::ThinSQL::db class which can be any
-    combination of the following.
+    combination of the following:
 
     - create\_sequence( $name )
 
@@ -136,14 +142,8 @@ Two functions are exported on request:
 
         Return the current value of the sequence.
 
-    The methods are added to a Perl class and are therefore available to
+    These methods are added to a Perl class and are therefore available to
     any [DBIx::ThinSQL](http://search.cpan.org/perldoc?DBIx::ThinSQL) handle.
-
-# CAVEATS
-
-An "autoincrement" integer primary key column in SQLite automatically
-creates a sequence for that table, which is incompatible with this
-module. Keep the two sequence types separate.
 
 # SEE ALSO
 

@@ -1,7 +1,11 @@
 0.0.3_1 (2013-05-24)
 
     API Changes:
-        - None.
+        - thinsql_create_methods() becomes create_methods().
+        - sqlite_create_functions() becomes create_functions().
+        - New function create_sqlite_sequence() has been extracted out
+          of the old create_sequence() function/method where it was
+          actually failing.
 
     New Features:
         - None.
