@@ -1,1 +1,5 @@
-name="DBIx-ThinSQL-SQLite"
+name = "DBIx-ThinSQL-SQLite"
+
+[no_index]
+directory = [ "t", "xt", "inc", "share", "eg", "examples", "author" ]
+namespace = [ "DBIx::ThinSQL::SQLite" ]
