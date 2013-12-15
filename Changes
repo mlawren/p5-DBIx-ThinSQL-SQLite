@@ -1,4 +1,4 @@
-0.0.5_2 (2013-06-13)
+0.0.5_2 (2013-12-15)
 
     API Changes:
         - None.
@@ -10,6 +10,7 @@
         - Use Log::Any::Test for log tests instead of my filesystem
           hack.
         - Don't index the SHA1 aggregate packages on CPAN
+        - Convert to Module::Install/Makefile.PL
 
     Bug Fixes:
         - None.
