@@ -21,7 +21,10 @@ cover_db/
 
 !LICENSE
 
+MANIFEST
 MYMETA.*
+
+README
 
 /DBIx-ThinSQL-SQLite-*
 

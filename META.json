@@ -3,10 +3,10 @@
    "author" : [
       "Mark Lawrence <nomad@null.net>"
    ],
-   "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.5.3, CPAN::Meta::Converter version 2.130880",
+   "dynamic_config" : "0",
+   "generated_by" : "Module::Install version 1.06, CPAN::Meta::Converter version 2.132830",
    "license" : [
-      "gpl_1"
+      "unknown"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -15,32 +15,25 @@
    "name" : "DBIx-ThinSQL-SQLite",
    "no_index" : {
       "directory" : [
-         "t",
-         "xt",
          "inc",
-         "share",
-         "eg",
-         "examples",
-         "author"
+         "t"
       ],
-      "namespace" : [
-         "DBIx::ThinSQL::SQLite"
+      "package" : [
+         "DBIx::ThinSQL::SQLite::agg_sha1",
+         "DBIx::ThinSQL::SQLite::agg_sha1_hex",
+         "DBIx::ThinSQL::SQLite::agg_sha1_base64"
       ]
    },
    "prereqs" : {
+      "build" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "6.59"
+         }
+      },
       "configure" : {
          "requires" : {
             "CPAN::Meta" : "0",
-            "CPAN::Meta::Prereqs" : "0",
-            "Module::Build" : "0.38"
-         }
-      },
-      "develop" : {
-         "requires" : {
-            "Test::CPAN::Meta" : "0",
-            "Test::MinimumVersion" : "0.10108",
-            "Test::Pod" : "1.41",
-            "Test::Spellunker" : "v0.2.7"
+            "ExtUtils::MakeMaker" : "6.59"
          }
       },
       "runtime" : {
@@ -48,7 +41,7 @@
             "DBD::SQLite" : "0",
             "DBIx::ThinSQL" : "v0.0.8",
             "Exporter::Tidy" : "0",
-            "perl" : "5.008005"
+            "perl" : "v5.8.5"
          }
       },
       "test" : {
@@ -61,17 +54,19 @@
          }
       }
    },
-   "release_status" : "unstable",
+   "release_status" : "testing",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite/issues"
       },
       "homepage" : "https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite",
+      "license" : [
+         "http://opensource.org/licenses/gpl-3.0.html"
+      ],
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/mlawren/p5-DBIx-ThinSQL-SQLite.git",
-         "web" : "https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite"
+         "url" : "git://github.com/mlawren/p5-DBIx-ThinSQL-SQLite.git"
       }
    },
-   "version" : "0.0.5_1"
+   "version" : "0.0.5_2"
 }

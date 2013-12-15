@@ -6,7 +6,7 @@ use Log::Any qw/$log/;
 use Exporter::Tidy all =>
   [qw/create_sqlite_sequence create_functions create_methods/];
 
-our $VERSION = "0.0.5_1";
+our $VERSION = "0.0.5_2";
 
 my %sqlite_functions = (
     debug => sub {
