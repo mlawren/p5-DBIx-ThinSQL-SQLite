@@ -1,4 +1,4 @@
-0.0.5_2 (2013-12-15)
+0.0.6 (2013-12-22)
 
     API Changes:
         - None.
@@ -11,6 +11,7 @@
           hack.
         - Don't index the SHA1 aggregate packages on CPAN
         - Convert to Module::Install/Makefile.PL
+        - Depend on DBIx::ThinSQL 0.0.10.
 
     Bug Fixes:
         - None.
