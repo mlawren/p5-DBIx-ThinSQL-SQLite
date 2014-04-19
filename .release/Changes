@@ -1,0 +1,58 @@
+0.0.7_1 (2014-04-20)
+
+    API Changes:
+        - sha1* functions only use first argument as input.
+        - agg_sha1* functions now use first argument for input and
+          the second argument as a sort criteria.
+
+    New Features:
+        - None.
+
+    Enhancements:
+        - None.
+
+    Bug Fixes:
+        - None.
+
+0.0.6 (2013-12-22)
+
+    API Changes:
+        - None.
+
+    New Features:
+        - None.
+
+    Enhancements:
+        - Use Log::Any::Test for log tests instead of my filesystem
+          hack.
+        - Don't index the SHA1 aggregate packages on CPAN
+        - Convert to Module::Install/Makefile.PL
+        - Depend on DBIx::ThinSQL 0.0.10.
+
+    Bug Fixes:
+        - None.
+
+0.0.4 (2013-06-11)
+
+    API Changes:
+        - thinsql_create_methods() becomes create_methods().
+        - sqlite_create_functions() becomes create_functions().
+        - New function create_sqlite_sequence() has been extracted out
+          of the old create_sequence() function/method where it was
+          actually failing.
+
+    New Features:
+        - None.
+
+    Enhancements:
+        - Logging of the currval() and nextval() functions
+        - Use log_debug() from DBIx::ThinSQL for debug() output
+
+    Bug Fixes:
+        - sha1* functions must accept multiple arguments
+        - Distribution name is now correctly capitalised
+        - Ensure all arguments to debug() are logged
+
+0.0.2 (2013-05-20)
+
+    Initial Release
