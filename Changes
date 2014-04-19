@@ -2,6 +2,8 @@
 
     API Changes:
         - sha1* functions only use first argument as input.
+        - agg_sha1* functions now use first argument for input and
+          the second argument as a sort criteria.
 
     New Features:
         - None.

@@ -140,13 +140,13 @@ _ENDSQL_
             is $base64, $sha1_base64, 'sha1_base64';
 
             like exception { $db->selectrow_array(q{select sha1(1,2)}) },
-              qr/wrong number of arguments/, 'sha1 only on argument';
+              qr/wrong number of arguments/, 'sha1 only one argument';
 
             like exception { $db->selectrow_array(q{select sha1_hex(1,2)}) },
-              qr/wrong number of arguments/, 'sha1_hex only on argument';
+              qr/wrong number of arguments/, 'sha1_hex only one argument';
 
             like exception { $db->selectrow_array(q{select sha1_base64(1,2)}) },
-              qr/wrong number of arguments/, 'sha1_base64 only on argument';
+              qr/wrong number of arguments/, 'sha1_base64 only one argument';
 
             ( $bytes, $hex, $base64 ) = $db->selectrow_array(
                 q{
@@ -157,8 +157,97 @@ _ENDSQL_
             is $bytes,  $sha1,        'sha1 multi-argument';
             is $hex,    $sha1_hex,    'sha1_hex multi-argument';
             is $base64, $sha1_base64, 'sha1_base64 multi-argument';
+
+            subtest 'aggregate hash' => sub {
+                create_functions( $db,
+                    qw/agg_sha1 agg_sha1_hex agg_sha1_base64/ );
+
+                # More than two arguments
+                like
+                  exception { $db->selectrow_array(q{select agg_sha1(1,2,3)}); }
+                , qr/wrong number of arguments/, 'agg_sha1 only two argument';
+
+                like exception {
+                    $db->selectrow_array(q{select agg_sha1_hex(1,2,3)});
+                }, qr/wrong number of arguments/,
+                  'agg_sha1_hex only two argument';
+
+                like exception {
+                    $db->selectrow_array(q{select agg_sha1_base64(1,2,3)});
+                }, qr/wrong number of arguments/,
+                  'agg_sha1_base64 only two argument';
+
+                # Just the right number of arguments
+
+                my ($hash) = $db->selectrow_array(
+                    q{ select agg_sha1(1,1) from (select 1) });
+
+                is $hash, Digest::SHA::sha1(1), 'agg_sha1 single';
+
+                ($hash) = $db->selectrow_array(
+                    q{ select agg_sha1(1,NULL) from (select 1) });
+
+                is $hash, Digest::SHA::sha1(1), 'agg_sha1 single sort by null';
+
+                ($hash) = $db->selectrow_array(
+                    q{ select agg_sha1(NULL,NULL) from (select 1) });
+
+                is $hash, Digest::SHA::sha1(), 'agg_sha1 null sort by null';
+
+                $db->do(q{CREATE TABLE y( id INTEGER, rev INTEGER)});
+                $db->do('insert into y(id,rev) values(1,3)');
+                $db->do('insert into y(id,rev) values(2,2)');
+                $db->do('insert into y(id,rev) values(3,1)');
+
+                ($hash) =
+                  $db->selectrow_array(q{ select agg_sha1(id,id) from y });
+
+                is $hash, Digest::SHA::sha1( 1, 2, 3 ), 'agg_sha1 multi';
+
+                ($hash) =
+                  $db->selectrow_array(q{ select agg_sha1(id,rev) from y});
+
+                is $hash, Digest::SHA::sha1( 3, 2, 1 ),
+                  'agg_sha1 multi reverse';
+
+                ($hash) =
+                  $db->selectrow_array(q{ select agg_sha1_hex(id,id) from y });
+
+                is $hash, Digest::SHA::sha1_hex( 1, 2, 3 ), 'agg_sha1_hexmulti';
+
+                ($hash) =
+                  $db->selectrow_array(q{ select agg_sha1_hex(id,rev) from y});
+
+                is $hash, Digest::SHA::sha1_hex( 3, 2, 1 ),
+                  'agg_sha1_hex multi reverse';
+
+                ($hash) = $db->selectrow_array(
+                    q{ select agg_sha1_base64(id,id) from y });
+
+                is $hash, Digest::SHA::sha1_base64( 1, 2, 3 ),
+                  'agg_base64 multi';
+
+                ($hash) = $db->selectrow_array(
+                    q{ select agg_sha1_base64(id,rev) from y});
+
+                is $hash, Digest::SHA::sha1_base64( 3, 2, 1 ),
+                  'agg_base64 multi reverse';
+
+                $db->do('insert into y(id,rev) values(4,NULL)');
+
+                ($hash) =
+                  $db->selectrow_array(q{ select agg_sha1(id,rev) from y });
+
+                is $hash, Digest::SHA::sha1( 4, 3, 2, 1 ), 'agg_sha1 multi';
+
+                ($hash) =
+                  $db->selectrow_array(q{ select agg_sha1(rev,rev) from y });
+
+                is $hash, Digest::SHA::sha1( 1, 2, 3 ), 'agg_sha1 multi';
+              }
+
         }
-    };
+    }
 };
 
 subtest "create_methods", sub {

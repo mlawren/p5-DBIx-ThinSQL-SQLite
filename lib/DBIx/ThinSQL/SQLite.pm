@@ -93,19 +93,19 @@ my %sqlite_functions = (
       agg_sha1 => sub {
         require Digest::SHA;
         my $dbh = shift;
-        $dbh->sqlite_create_aggregate( 'agg_sha1', -1,
+        $dbh->sqlite_create_aggregate( 'agg_sha1', 2,
             'DBIx::ThinSQL::SQLite::agg_sha1' );
       },
       agg_sha1_hex => sub {
         require Digest::SHA;
         my $dbh = shift;
-        $dbh->sqlite_create_aggregate( 'agg_sha1_hex', -1,
+        $dbh->sqlite_create_aggregate( 'agg_sha1_hex', 2,
             'DBIx::ThinSQL::SQLite::agg_sha1_hex' );
       },
       agg_sha1_base64 => sub {
         require Digest::SHA;
         my $dbh = shift;
-        $dbh->sqlite_create_aggregate( 'agg_sha1_base64', -1,
+        $dbh->sqlite_create_aggregate( 'agg_sha1_base64', 2,
             'DBIx::ThinSQL::SQLite::agg_sha1_base64' );
       },
 );
@@ -236,32 +236,40 @@ sub create_methods {
 }
 
 package DBIx::ThinSQL::SQLite::agg_sha1;
-our @ISA = ('Digest::SHA');
+
+sub new {
+    my $class = shift;
+    return bless [], $class;
+}
 
 sub step {
     my $self = shift;
-    $self->add(
-        map { utf8::is_utf8($_) ? Encode::encode_utf8($_) : $_ }
-        grep { defined $_ } @_
-    );
+    push( @$self,
+        utf8::is_utf8( $_[0] // '' )
+        ? [ Encode::encode_utf8( $_[0] // '' ), $_[1] // '' ]
+        : [ $_[0] // '', $_[1] // '' ] );
+}
+
+sub _sort {
+    return map { $_->[0] } sort { $a->[1] cmp $b->[1] } @{ $_[0] };
 }
 
 sub finalize {
-    $_[0]->digest;
+    return Digest::SHA::sha1( $_[0]->_sort );
 }
 
 package DBIx::ThinSQL::SQLite::agg_sha1_hex;
 our @ISA = ('DBIx::ThinSQL::SQLite::agg_sha1');
 
 sub finalize {
-    $_[0]->hexdigest;
+    return Digest::SHA::sha1_hex( $_[0]->_sort );
 }
 
 package DBIx::ThinSQL::SQLite::agg_sha1_base64;
 our @ISA = ('DBIx::ThinSQL::SQLite::agg_sha1');
 
 sub finalize {
-    $_[0]->b64digest;
+    return Digest::SHA::sha1_base64( $_[0]->_sort );
 }
 
 1;
@@ -359,33 +367,35 @@ created.
 
 =over
 
-=item sha1( @args ) -> bytes
+=item sha1( $expr ) -> bytes
 
-Calculate the SHA digest of all arguments concatenated together and
-return it in a 20-byte binary form. Unfortunately it seems that the
-underlying SQLite C sqlite_create_function() provides no way to
-identify the result as a blob, so you must always manually cast the
-result in SQL like so:
+Calculate the SHA digest of C<$expr> and return it in a 20-byte binary
+form. Unfortunately it seems that the underlying SQLite C
+sqlite_create_function() provides no way to identify the result as a
+blob, so you must always manually cast the result in SQL like so:
 
     CAST(sha1(SQLITE_EXPRESSION) AS blob)
 
-=item sha1_hex( @args ) -> hexidecimal
+=item sha1_hex( $expr ) -> hexidecimal
 
-Calculate the SQLite digest of all arguments concatenated together and
-return it in a 40-character hexidecimal form.
+Calculate the SQLite digest of C<$expr> and return it in a 40-character
+hexidecimal form.
 
-=item sha1_base64( @args ) -> base64
+=item sha1_base64( $expr ) -> base64
 
-Calculate the SQLite digest of all arguments concatenated together and
-return it in a base64 encoded form.
+Calculate the SQLite digest of C<$expr> and return it in a base64
+encoded form.
 
-=item agg_sha1( @args ) -> bytes
+=item agg_sha1( $expr, $sort_expr ) -> bytes
 
-=item agg_sha1_hex( @args ) -> hexidecimal
+=item agg_sha1_hex( $expr, $sort_expr ) -> hexidecimal
 
-=item agg_sha1_base64( @args ) -> base64
+=item agg_sha1_base64( $expr, $sort_expr ) -> base64
 
 These aggregate functions are for use with statements using GROUP BY.
+C<$expr> is the expression on which to calculate the SHA1 hash, and
+C<$sort_expr> determines the (string) comparison order in which
+C<$expr> is fed to the SHA1 stream.
 
 =back
 
