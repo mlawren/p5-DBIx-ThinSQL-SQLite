@@ -1,10 +1,11 @@
 use strict;
 use warnings;
+use Log::Any::Test;
 use DBIx::ThinSQL;
 use DBIx::ThinSQL::SQLite
   qw/create_sqlite_sequence create_functions create_methods/;
 use File::chdir;
-use Log::Any::Adapter;
+use Log::Any '$log';
 use Path::Tiny;
 use Test::Fatal qw/exception/;
 use Test::More;
@@ -24,8 +25,6 @@ subtest "create_functions", sub {
     isa_ok \&create_functions, 'CODE';
 
     run_in_tempdir {
-        my $logfile = path('log.txt');
-        Log::Any::Adapter->set( 'File', $logfile );
 
         my $db = DBIx::ThinSQL->connect( 'dbi:SQLite:dbname=test.sqlite3',
             undef, undef, { RaiseError => 1, PrintError => 0 } );
@@ -50,22 +49,19 @@ subtest "create_functions", sub {
           'unknown function';
 
         create_functions( $db, qw/debug/ );
-        my $str = 'RaNdOm';    # just a random string
-        $db->do("select debug('$str', '$str')");
 
-        my $log = $logfile->slurp;
-        like $log, qr/$str $str/, 'debug logged all args to Log::Any';
+        my $str = 'RaNdOm';    # just a random string
+        $db->do("select debug('$str', '$str', 1)");
+        $log->contains_ok( qr/$str $str 1/, 'debug logged all args' );
+
+        $db->do(q{select debug("select ? || ? || ?", 'lazy','fox','jump')});
+        $log->contains_ok( qr/lazyfoxjump/, 'debug select with bind values' );
 
         $db->do(
             q{select debug("
             select 1 || 2 || 1 || 4")}
         );
-        $log = $logfile->slurp;
-        like $log, qr/select.*1214/s, 'debug select with leading space';
-
-        $db->do(q{select debug("select ? || ? || ?", 'lazy','fox','jump')});
-        $log = $logfile->slurp;
-        like $log, qr/lazyfoxjump/s, 'debug select multiple';
+        $log->contains_ok( qr/1214/, 'debug select with leading space' );
 
         create_functions( $db, qw/create_sequence currval nextval/ );
 

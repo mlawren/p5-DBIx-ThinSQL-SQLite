@@ -1,0 +1,17 @@
+MYMETA*
+MANIFEST.SKIP
+MANIFEST.bak
+build-stamp
+install-stamp
+pm_to_blib
+^blib
+Makefile$
+Makefile.old
+^\.
+\.gz$
+old/
+xt/
+^DBIx
+^cover_db
+extlib/
+blib/
