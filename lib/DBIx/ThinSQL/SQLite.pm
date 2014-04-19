@@ -44,61 +44,70 @@ my %sqlite_functions = (
         require Digest::SHA;
         my $dbh = shift;
         $dbh->sqlite_create_function(
-            'sha1', -1,
+            'sha1', 1,
             sub {
                 Digest::SHA::sha1(
-                    map { utf8::is_utf8($_) ? Encode::encode_utf8($_) : $_ }
-                    grep { defined $_ } @_
+                      defined $_[0]
+                    ? utf8::is_utf8( $_[0] )
+                          ? Encode::encode_utf8( $_[0] )
+                          : $_[0]
+                    : ''
                 );
             }
         );
-    },
-    sha1_hex => sub {
+      },
+      sha1_hex => sub {
         require Digest::SHA;
         my $dbh = shift;
         $dbh->sqlite_create_function(
             'sha1_hex',
-            -1,
+            1,
             sub {
                 Digest::SHA::sha1_hex(
-                    map { utf8::is_utf8($_) ? Encode::encode_utf8($_) : $_ }
-                    grep { defined $_ } @_
+                      defined $_[0]
+                    ? utf8::is_utf8( $_[0] )
+                          ? Encode::encode_utf8( $_[0] )
+                          : $_[0]
+                    : ''
                 );
             }
         );
-    },
-    sha1_base64 => sub {
+      },
+      sha1_base64 => sub {
         require Digest::SHA;
         my $dbh = shift;
         $dbh->sqlite_create_function(
             'sha1_base64',
-            -1,
+            1,
             sub {
                 Digest::SHA::sha1_base64(
-                    map { utf8::is_utf8($_) ? Encode::encode_utf8($_) : $_ }
-                    grep { defined $_ } @_
+                      defined $_[0]
+                    ? utf8::is_utf8( $_[0] )
+                          ? Encode::encode_utf8( $_[0] )
+                          : $_[0]
+                    : ''
                 );
             }
         );
-    },
-    agg_sha1 => sub {
+      },
+      agg_sha1 => sub {
         require Digest::SHA;
         my $dbh = shift;
         $dbh->sqlite_create_aggregate( 'agg_sha1', -1,
             'DBIx::ThinSQL::SQLite::agg_sha1' );
-    },
-    agg_sha1_hex => sub {
+      },
+      agg_sha1_hex => sub {
         require Digest::SHA;
         my $dbh = shift;
         $dbh->sqlite_create_aggregate( 'agg_sha1_hex', -1,
             'DBIx::ThinSQL::SQLite::agg_sha1_hex' );
-    },
-    agg_sha1_base64 => sub {
+      },
+      agg_sha1_base64 => sub {
         require Digest::SHA;
         my $dbh = shift;
         $dbh->sqlite_create_aggregate( 'agg_sha1_base64', -1,
             'DBIx::ThinSQL::SQLite::agg_sha1_base64' );
-    },
+      },
 );
 
 sub _croak { require Carp; goto &Carp::croak }

@@ -1,7 +1,7 @@
 0.0.7_1 (yyyy-mm-dd)
 
     API Changes:
-        - None.
+        - sha1* functions only use first argument as input.
 
     New Features:
         - None.
