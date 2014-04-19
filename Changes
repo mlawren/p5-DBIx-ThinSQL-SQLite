@@ -1,4 +1,4 @@
-0.0.7_1 (yyyy-mm-dd)
+0.0.7_1 (2014-04-20)
 
     API Changes:
         - sha1* functions only use first argument as input.
