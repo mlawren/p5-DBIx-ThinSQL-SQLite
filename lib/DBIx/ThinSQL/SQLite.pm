@@ -19,8 +19,7 @@ my %sqlite_functions = (
                     $dbh->log_debug(@_);
                 }
                 else {
-                    $log->debug(
-                        join( ' ', map { defined $_ ? $_ : 'NULL' } @_ ) );
+                    $log->debug( join( ' ', map { $_ // 'NULL' } @_ ) );
                 }
             }
         );
