@@ -32,10 +32,10 @@ requires:
   DBD::SQLite: '0'
   DBIx::ThinSQL: v0.0.10
   Exporter::Tidy: '0'
-  perl: v5.8.5
+  perl: v5.10.0
 resources:
   bugtracker: https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite/issues
   homepage: https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite
   license: http://opensource.org/licenses/gpl-3.0.html
   repository: git://github.com/mlawren/p5-DBIx-ThinSQL-SQLite.git
-version: 0.0.7_1
+version: 0.0.8

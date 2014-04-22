@@ -6,7 +6,7 @@ use Log::Any qw/$log/;
 use Exporter::Tidy all =>
   [qw/create_sqlite_sequence create_functions create_methods/];
 
-our $VERSION = "0.0.7_1";
+our $VERSION = "0.0.8";
 
 my %sqlite_functions = (
     debug => sub {
@@ -19,8 +19,7 @@ my %sqlite_functions = (
                     $dbh->log_debug(@_);
                 }
                 else {
-                    $log->debug(
-                        join( ' ', map { defined $_ ? $_ : 'NULL' } @_ ) );
+                    $log->debug( join( ' ', map { $_ // 'NULL' } @_ ) );
                 }
             }
         );
@@ -283,7 +282,7 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 =head1 VERSION
 
-0.0.7_1 (2014-04-20) Development release.
+0.0.8 (2014-04-22) Development release.
 
 =head1 SYNOPSIS
 
