@@ -139,20 +139,15 @@ _ENDSQL_
             is $hex,    $sha1_hex,    'sha1_hex';
             is $base64, $sha1_base64, 'sha1_base64';
 
-            like exception { $db->selectrow_array(q{select sha1(1,2)}) },
-              qr/wrong number of arguments/, 'sha1 only one argument';
-
-            like exception { $db->selectrow_array(q{select sha1_hex(1,2)}) },
-              qr/wrong number of arguments/, 'sha1_hex only one argument';
-
-            like exception { $db->selectrow_array(q{select sha1_base64(1,2)}) },
-              qr/wrong number of arguments/, 'sha1_base64 only one argument';
-
             ( $bytes, $hex, $base64 ) = $db->selectrow_array(
                 q{
-                select sha1(1), sha1_hex(1), sha1_base64(1)
+                select sha1(1,2,3), sha1_hex(1,2,3), sha1_base64(1,2,3)
             }
             );
+
+            $sha1 = Digest::SHA::sha1( 1, 2, 3 );
+            $sha1_hex = Digest::SHA::sha1_hex( 1, 2, 3 );
+            $sha1_base64 = Digest::SHA::sha1_base64( 1, 2, 3 );
 
             is $bytes,  $sha1,        'sha1 multi-argument';
             is $hex,    $sha1_hex,    'sha1_hex multi-argument';

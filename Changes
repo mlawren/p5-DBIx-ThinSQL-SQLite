@@ -1,7 +1,7 @@
 0.0.9_1 (yyyy-mm-dd)
 
-    API Changes:
-       - None.
+   API Changes:
+      - Restore multiple argument sha1* functions.
 
    New Features:
       - None.
@@ -12,7 +12,7 @@
    Bug Fixes:
       - None.
 
-0.0.8 (yyyy-mm-dd)
+0.0.8 (2014-04-22)
 
     API Changes:
         - sha1* functions only use first argument as input.
