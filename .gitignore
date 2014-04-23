@@ -1,6 +1,7 @@
+.direnv
+.envrc
 blib/
 DBIx-ThinSQL*
-extlib/
 inc/
 Makefile
 Makefile.old
