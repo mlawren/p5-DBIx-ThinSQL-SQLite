@@ -1,4 +1,4 @@
-0.0.9_1 (2014-04-23)
+0.0.10 (2014-04-23)
 
    API Changes:
       - Restore multiple argument sha1* functions.
