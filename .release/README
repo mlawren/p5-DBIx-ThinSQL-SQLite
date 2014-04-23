@@ -2,7 +2,7 @@ NAME
     DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 VERSION
-    0.0.9_1 (2014-04-22) Development release.
+    0.0.9_1 (2014-04-23) Development release.
 
 SYNOPSIS
         use DBIx::ThinSQL;
@@ -72,7 +72,7 @@ DESCRIPTION
         If Digest::SHA is installed then the following functions can also be
         created.
 
-        sha1( $expr ) -> bytes
+        sha1( $expr, ... ) -> bytes
             Calculate the SHA digest of $expr and return it in a 20-byte
             binary form. Unfortunately it seems that the underlying SQLite C
             sqlite_create_function() provides no way to identify the result
@@ -81,11 +81,11 @@ DESCRIPTION
 
                 CAST(sha1(SQLITE_EXPRESSION) AS blob)
 
-        sha1_hex( $expr ) -> hexidecimal
+        sha1_hex( $expr, ... ) -> hexidecimal
             Calculate the SQLite digest of $expr and return it in a
             40-character hexidecimal form.
 
-        sha1_base64( $expr ) -> base64
+        sha1_base64( $expr, ... ) -> base64
             Calculate the SQLite digest of $expr and return it in a base64
             encoded form.
 
