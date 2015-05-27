@@ -24,6 +24,21 @@ my %sqlite_functions = (
             }
         );
     },
+    warn => sub {
+        my $dbh = shift;
+
+        $dbh->sqlite_create_function(
+            'warn', -1,
+            sub {
+                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*select/i ) {
+                    $dbh->log_warn(@_);
+                }
+                else {
+                    warn join( ' ', map { $_ // 'NULL' } @_ );
+                }
+            }
+        );
+    },
     create_sequence => sub {
         my $dbh = shift;
         $dbh->sqlite_create_function( 'create_sequence', 1,
@@ -337,6 +352,13 @@ This function called from SQL context logs C<@items> with a C<debug()>
 call to a L<Log::Any> instance.  If the first item of C<@items> begins
 with C</^select/i> then that statement will be run and the result
 logged using C<log_debug> from L<DBIx::ThinSQL> instead.
+
+=item warn( @items )
+
+This function called from SQL context logs C<@items> using Perl's
+C<warn> function. If the first item of C<@items> begins with
+C</^select/i> then that statement will be run using the current handle
+and the result warned instead.
 
 =item create_sequence( $name )
 

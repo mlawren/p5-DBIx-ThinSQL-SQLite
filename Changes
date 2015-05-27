@@ -4,7 +4,7 @@
        - None.
 
    New Features:
-      - None.
+      - Use log_warn() from DBIx::ThinSQL for new warn() SQL function
 
    Enhancements:
       - None.
