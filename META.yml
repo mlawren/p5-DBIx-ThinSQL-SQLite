@@ -13,7 +13,7 @@ configure_requires:
   CPAN::Meta: '0'
   ExtUtils::MakeMaker: '6.59'
 dynamic_config: '0'
-generated_by: 'Module::Install version 1.08, CPAN::Meta::Converter version 2.142690'
+generated_by: 'Module::Install version 1.16, CPAN::Meta::Converter version 2.142690'
 license: unknown
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -38,4 +38,4 @@ resources:
   homepage: https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite
   license: http://opensource.org/licenses/gpl-3.0.html
   repository: git://github.com/mlawren/p5-DBIx-ThinSQL-SQLite.git
-version: 0.0.13_1
+version: 0.0.13_2

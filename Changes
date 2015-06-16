@@ -1,4 +1,4 @@
-0.0.13_1 (2015-06-16)
+0.0.13_2 (2015-06-16)
 
     API / Behaviour Changes:
         - None.
@@ -7,7 +7,7 @@
         - None.
 
     Enhancements:
-        - None.
+        - Upgrade inclued Module::Install to 1.16.
 
     Bug Fixes:
         - Depend on DBIx::ThinSQL 0.0.34 (for log_warn())
