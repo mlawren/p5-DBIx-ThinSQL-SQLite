@@ -6,7 +6,7 @@ use Log::Any qw/$log/;
 use Exporter::Tidy all =>
   [qw/create_sqlite_sequence create_functions create_methods/];
 
-our $VERSION = "0.0.10";
+our $VERSION = "0.0.11_1";
 
 my %sqlite_functions = (
     debug => sub {
@@ -20,6 +20,21 @@ my %sqlite_functions = (
                 }
                 else {
                     $log->debug( join( ' ', map { $_ // 'NULL' } @_ ) );
+                }
+            }
+        );
+    },
+    warn => sub {
+        my $dbh = shift;
+
+        $dbh->sqlite_create_function(
+            'warn', -1,
+            sub {
+                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*select/i ) {
+                    $dbh->log_warn(@_);
+                }
+                else {
+                    warn join( ' ', map { $_ // 'NULL' } @_ );
                 }
             }
         );
@@ -273,7 +288,7 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 =head1 VERSION
 
-0.0.10 (2014-04-23) Development release.
+0.0.12 (2015-06-16) Development release.
 
 =head1 SYNOPSIS
 
@@ -337,6 +352,13 @@ This function called from SQL context logs C<@items> with a C<debug()>
 call to a L<Log::Any> instance.  If the first item of C<@items> begins
 with C</^select/i> then that statement will be run and the result
 logged using C<log_debug> from L<DBIx::ThinSQL> instead.
+
+=item warn( @items )
+
+This function called from SQL context logs C<@items> using Perl's
+C<warn> function. If the first item of C<@items> begins with
+C</^select/i> then that statement will be run using the current handle
+and the result warned instead.
 
 =item create_sequence( $name )
 
