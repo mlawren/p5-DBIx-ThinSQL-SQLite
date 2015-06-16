@@ -1,7 +1,7 @@
 on 'runtime' => sub {
     requires 'perl', '5.008001';
     requires 'DBD::SQLite';
-    requires 'DBIx::ThinSQL', '0.0.10';
+    requires 'DBIx::ThinSQL', '0.0.34';
     requires 'Exporter::Tidy';
 };
 

@@ -50,7 +50,7 @@
       "runtime" : {
          "requires" : {
             "DBD::SQLite" : "0",
-            "DBIx::ThinSQL" : "v0.0.10",
+            "DBIx::ThinSQL" : "v0.0.34",
             "Exporter::Tidy" : "0",
             "perl" : "v5.10.0"
          }
@@ -65,7 +65,7 @@
          }
       }
    },
-   "release_status" : "stable",
+   "release_status" : "testing",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/mlawren/p5-DBIx-ThinSQL-SQLite/issues"
@@ -79,5 +79,5 @@
          "url" : "git://github.com/mlawren/p5-DBIx-ThinSQL-SQLite.git"
       }
    },
-   "version" : "0.0.12"
+   "version" : "0.0.13_1"
 }
