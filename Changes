@@ -7,7 +7,7 @@
         - None.
 
     Enhancements:
-        - None.
+        - Upgrade inclued Module::Install to 1.16.
 
     Bug Fixes:
         - Depend on DBIx::ThinSQL 0.0.34 (for log_warn())
