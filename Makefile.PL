@@ -2,7 +2,7 @@ use 5.010;
 use inc::Module::Install;
 
 name 'DBIx-ThinSQL-SQLite';
-version '0.0.13_2';
+version '0.0.13_3';
 license 'gpl3';
 perl_version '5.010';
 
