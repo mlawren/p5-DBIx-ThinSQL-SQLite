@@ -10,7 +10,7 @@
         - None.
 
     Bug Fixes:
-        - None.
+        - Depend on DBIx::ThinSQL 0.0.34 (for log_warn())
 
 0.0.12 (2015-06-16)
 
