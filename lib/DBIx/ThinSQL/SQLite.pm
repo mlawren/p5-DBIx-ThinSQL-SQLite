@@ -288,7 +288,7 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 =head1 VERSION
 
-0.0.14 (2015-06-19) Development release.
+0.0.14 (yyyy-mm-dd) Development release.
 
 =head1 SYNOPSIS
 
