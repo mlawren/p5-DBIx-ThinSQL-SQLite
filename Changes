@@ -7,7 +7,8 @@
         - None.
 
     Enhancements:
-        - None.
+        - Recognize pragma statements inside warn() & debug() functions
+          as SQL runnable.
 
     Bug Fixes:
         - None.

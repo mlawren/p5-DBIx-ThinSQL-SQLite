@@ -15,7 +15,7 @@ my %sqlite_functions = (
         $dbh->sqlite_create_function(
             'debug', -1,
             sub {
-                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*select/i ) {
+                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*(select|pragma)/i ) {
                     $dbh->log_debug(@_);
                 }
                 else {
@@ -30,7 +30,7 @@ my %sqlite_functions = (
         $dbh->sqlite_create_function(
             'warn', -1,
             sub {
-                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*select/i ) {
+                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*(select|pragma)/i ) {
                     $dbh->log_warn(@_);
                 }
                 else {
