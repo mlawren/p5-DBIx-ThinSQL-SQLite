@@ -148,7 +148,7 @@ sub _create_sequence {
     );
     $val && _croak("create_sequence: sequence already exists: $name");
     $log->debug("INSERT INTO sqlite_sequence VALUES('$name',0)");
-    $dbh->do( 'INSERT INTO sqlite_sequence(name,seq) VALUES(?,?)',
+    $dbh->do( 'INSERT INTO sqlite_sequence(name,seq) VALUES(?,?+0)',
         undef, $name, 0 );
 }
 
@@ -196,8 +196,8 @@ sub _nextval {
 
         next
           unless $dbh->do(
-            'UPDATE sqlite_sequence SET seq = ? '
-              . 'WHERE name = ? AND seq = ?',
+            'UPDATE sqlite_sequence SET seq = ?+0 '
+              . 'WHERE name = ? AND seq = ?+0',
             undef, $current + 1, $name, $current
           );
 
