@@ -15,12 +15,6 @@
 
 0.0.14 (2015-06-19)
 
-    API / Behaviour Changes:
-        - None.
-
-    New Features:
-        - None.
-
     Enhancements:
         - Upgrade inclued Module::Install to 1.16.
 
@@ -30,31 +24,13 @@
 
 0.0.12 (2015-06-16)
 
-    API Changes:
-       - None.
-
    New Features:
       - Use log_warn() from DBIx::ThinSQL for new warn() SQL function
-
-   Enhancements:
-      - None.
-
-   Bug Fixes:
-      - None.
 
 0.0.10 (2014-04-23)
 
    API Changes:
       - Restore multiple argument sha1* functions.
-
-   New Features:
-      - None.
-
-   Enhancements:
-      - None.
-
-   Bug Fixes:
-      - None.
 
 0.0.8 (2014-04-22)
 
@@ -63,22 +39,7 @@
         - agg_sha1* functions now use first argument for input and
           the second argument as a sort criteria.
 
-    New Features:
-        - None.
-
-    Enhancements:
-        - None.
-
-    Bug Fixes:
-        - None.
-
 0.0.6 (2013-12-22)
-
-    API Changes:
-        - None.
-
-    New Features:
-        - None.
 
     Enhancements:
         - Use Log::Any::Test for log tests instead of my filesystem
@@ -86,9 +47,6 @@
         - Don't index the SHA1 aggregate packages on CPAN
         - Convert to Module::Install/Makefile.PL
         - Depend on DBIx::ThinSQL 0.0.10.
-
-    Bug Fixes:
-        - None.
 
 0.0.4 (2013-06-11)
 
@@ -98,9 +56,6 @@
         - New function create_sqlite_sequence() has been extracted out
           of the old create_sequence() function/method where it was
           actually failing.
-
-    New Features:
-        - None.
 
     Enhancements:
         - Logging of the currval() and nextval() functions
