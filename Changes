@@ -11,7 +11,7 @@
           as SQL runnable.
 
     Bug Fixes:
-        - None.
+        - Force sequence values to be stored as integers
 
 0.0.14 (2015-06-19)
 
