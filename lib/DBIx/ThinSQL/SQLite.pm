@@ -6,7 +6,7 @@ use Log::Any qw/$log/;
 use Exporter::Tidy all =>
   [qw/create_sqlite_sequence create_functions create_methods/];
 
-our $VERSION = '0.0.14';
+our $VERSION = '0.0.16';
 
 my %sqlite_functions = (
     debug => sub {
@@ -15,7 +15,7 @@ my %sqlite_functions = (
         $dbh->sqlite_create_function(
             'debug', -1,
             sub {
-                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*select/i ) {
+                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*(select|pragma)/i ) {
                     $dbh->log_debug(@_);
                 }
                 else {
@@ -30,7 +30,7 @@ my %sqlite_functions = (
         $dbh->sqlite_create_function(
             'warn', -1,
             sub {
-                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*select/i ) {
+                if ( @_ && defined $_[0] && $_[0] =~ m/^\s*(select|pragma)/i ) {
                     $dbh->log_warn(@_);
                 }
                 else {
@@ -148,7 +148,7 @@ sub _create_sequence {
     );
     $val && _croak("create_sequence: sequence already exists: $name");
     $log->debug("INSERT INTO sqlite_sequence VALUES('$name',0)");
-    $dbh->do( 'INSERT INTO sqlite_sequence(name,seq) VALUES(?,?)',
+    $dbh->do( 'INSERT INTO sqlite_sequence(name,seq) VALUES(?,?+0)',
         undef, $name, 0 );
 }
 
@@ -196,8 +196,8 @@ sub _nextval {
 
         next
           unless $dbh->do(
-            'UPDATE sqlite_sequence SET seq = ? '
-              . 'WHERE name = ? AND seq = ?',
+            'UPDATE sqlite_sequence SET seq = ?+0 '
+              . 'WHERE name = ? AND seq = ?+0',
             undef, $current + 1, $name, $current
           );
 
@@ -288,7 +288,7 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 =head1 VERSION
 
-0.0.14 (2015-06-19) Development release.
+0.0.16 (2016-05-20) Development release.
 
 =head1 SYNOPSIS
 
