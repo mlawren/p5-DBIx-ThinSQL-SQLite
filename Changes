@@ -1,4 +1,4 @@
-0.0.16 (yyyy-mm-dd)
+0.0.16 (2016-05-20)
 
     Enhancements:
         - Recognize pragma statements inside warn() & debug() functions
