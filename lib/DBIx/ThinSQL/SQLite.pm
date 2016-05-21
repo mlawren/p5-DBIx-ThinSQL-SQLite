@@ -1,5 +1,5 @@
 package DBIx::ThinSQL::SQLite;
-use 5.008005;
+use 5.010;
 use strict;
 use warnings;
 use Log::Any qw/$log/;

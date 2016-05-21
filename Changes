@@ -10,7 +10,7 @@
         - None.
 
     Bug Fixes:
-        - None.
+        - Explicitly "use 5.10" due to use of '//'
 
     Dependencies:
         - None.
