@@ -1,13 +1,14 @@
 0.0.17_1 (yyyy-mm-dd)
 
     API / Behaviour Changes:
-        - None.
+        - Sequences now create a new ${name}_sequence table
 
     New Features:
         - None.
 
     Enhancements:
-        - None.
+        - Reimplement sequence support based on SQLite's
+          last_insert_rowid() function (more reliable)
 
     Bug Fixes:
         - Explicitly "use 5.10" due to use of '//'
