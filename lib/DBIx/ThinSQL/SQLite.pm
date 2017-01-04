@@ -126,22 +126,21 @@ sub _create_sequence {
     my $dbh = shift;
     my $name = shift || _croak('usage: create_sequence($name)');
 
-    local $dbh->{RaiseError} = 1;
-    local $dbh->{PrintError} = 0;
-
     $dbh->do( 'CREATE TABLE '
           . $name
-          . '_sequence (seq INTEGER PRIMARY KEY AUTOINCREMENT);' );
-    $dbh->do( 'INSERT INTO ' . $name . '_sequence(seq) VALUES(0)' );
-    $dbh->do( 'DELETE FROM ' . $name . '_sequence' );
+          . '_sequence (seq INTEGER PRIMARY KEY AUTOINCREMENT);' )
+      or _croak( $dbh->errstr );
+
+    $dbh->do( 'INSERT INTO ' . $name . '_sequence(seq) VALUES(0)' )
+      or _croak( $dbh->errstr );
+
+    $dbh->do( 'DELETE FROM ' . $name . '_sequence' )
+      or _croak( $dbh->errstr );
 }
 
 sub _currval {
     my $dbh = shift;
     my $name = shift || die 'usage: currval($name)';
-
-    local $dbh->{RaiseError} = 1;
-    local $dbh->{PrintError} = 0;
 
     my $ref = $dbh->selectrow_arrayref(
         'SELECT seq FROM sqlite_sequence WHERE name = ?',
@@ -157,11 +156,9 @@ sub _nextval {
     my $dbh = shift;
     my $name = shift || die 'usage: nextval($name)';
 
-    local $dbh->{RaiseError} = 1;
-    local $dbh->{PrintError} = 0;
-
     $dbh->do( 'INSERT INTO ' . $name . '_sequence(seq) VALUES(NULL)' )
       or _croak( 'nextval: unknown sequence: ' . $name );
+
     $dbh->do( 'DELETE FROM ' . $name . '_sequence' );
     return $dbh->selectrow_arrayref('SELECT last_insert_rowid();')->[0];
 }

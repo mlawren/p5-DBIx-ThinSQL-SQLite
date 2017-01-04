@@ -12,6 +12,7 @@
 
     Bug Fixes:
         - Explicitly "use 5.10" due to use of '//'
+        - "local" DBI values don't work
 
     Dependencies:
         - None.
