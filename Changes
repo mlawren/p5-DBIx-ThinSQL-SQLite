@@ -1,4 +1,4 @@
-0.0.17 (yyyy-mm-dd)
+0.0.17 (2017-01-04)
 
     API / Behaviour Changes:
         - Sequences now create a new ${name}_sequence table
