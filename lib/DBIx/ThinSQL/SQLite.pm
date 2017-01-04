@@ -285,6 +285,8 @@ The following functions are exported on request:
 
 =item create_sqlite_sequence( $dbh )
 
+[DEPRECIATED - no longer required]
+
 Ensure that the C<sqlite_sequence> table exists.  This function must be
 called on the database (once only - the changes are permanent) before
 any of the other sequence related functions or methods will work.
