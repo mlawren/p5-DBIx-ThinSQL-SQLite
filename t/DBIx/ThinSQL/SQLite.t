@@ -70,7 +70,7 @@ subtest "create_functions", sub {
         $db->do('drop table x');
 
         like exception { $db->selectrow_array("select nextval('testseq')") },
-          qr/unknown sequence/, 'seq not found';
+          qr/no such table/, 'seq not found';
 
         $db->do(q{select create_sequence('testseq')});
         $db->do(q{select create_sequence('testseq2')});
@@ -286,7 +286,7 @@ subtest "create_methods", sub {
 
         # Can only test this after sqlite_sequence has already been created
         like exception { $db->nextval('unknown') },
-          qr/unknown sequence/, 'nextval seq not found';
+          qr/no such table/, 'nextval seq not found';
 
         like exception { $db->currval('unknown') },
           qr/unknown sequence/, 'currval seq not found';

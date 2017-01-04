@@ -1,3 +1,22 @@
+0.0.17 (2017-01-04)
+
+    API / Behaviour Changes:
+        - Sequences now create a new ${name}_sequence table
+
+    New Features:
+        - None.
+
+    Enhancements:
+        - Reimplement sequence support based on SQLite's
+          last_insert_rowid() function (more reliable)
+
+    Bug Fixes:
+        - Explicitly "use 5.10" due to use of '//'
+        - "local" DBI values don't work
+
+    Dependencies:
+        - None.
+
 0.0.16 (2016-05-20)
 
     Enhancements:

@@ -2,7 +2,7 @@ NAME
     DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 VERSION
-    0.0.16 (2016-05-20) Development release.
+    0.0.17 (2017-01-04) Development release.
 
 SYNOPSIS
         use DBIx::ThinSQL;
@@ -38,6 +38,8 @@ DESCRIPTION
     The following functions are exported on request:
 
     create_sqlite_sequence( $dbh )
+        [DEPRECIATED - no longer required]
+
         Ensure that the "sqlite_sequence" table exists. This function must
         be called on the database (once only - the changes are permanent)
         before any of the other sequence related functions or methods will

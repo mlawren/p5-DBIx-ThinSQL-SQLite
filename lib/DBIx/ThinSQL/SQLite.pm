@@ -1,12 +1,12 @@
 package DBIx::ThinSQL::SQLite;
-use 5.008005;
+use 5.010;
 use strict;
 use warnings;
 use Log::Any qw/$log/;
 use Exporter::Tidy all =>
   [qw/create_sqlite_sequence create_functions create_methods/];
 
-our $VERSION = '0.0.16';
+our $VERSION = '0.0.17';
 
 my %sqlite_functions = (
     debug => sub {
@@ -117,16 +117,8 @@ my %sqlite_functions = (
 
 sub _croak { require Carp; goto &Carp::croak }
 
+# Legacy method
 sub create_sqlite_sequence {
-    my $dbh = shift;
-
-    local $dbh->{RaiseError} = 1;
-    local $dbh->{PrintError} = 0;
-
-    my $temp = '_temp' . join( '', map { int( rand($_) ) } 1000 .. 1005 );
-    $dbh->do("CREATE TABLE $temp(x integer primary key autoincrement)");
-    $dbh->do("DROP TABLE $temp");
-
     return;
 }
 
@@ -134,77 +126,41 @@ sub _create_sequence {
     my $dbh = shift;
     my $name = shift || _croak('usage: create_sequence($name)');
 
-    local $dbh->{RaiseError} = 1;
-    local $dbh->{PrintError} = 0;
+    $dbh->do( 'CREATE TABLE '
+          . $name
+          . '_sequence (seq INTEGER PRIMARY KEY AUTOINCREMENT);' )
+      or _croak( $dbh->errstr );
 
-    # the sqlite_sequence table doesn't have any constraints so it
-    # would be possible to insert the same sequence twice. Check if
-    # one already exists
-    my ($val) = (
-        $dbh->selectrow_array(
-            'SELECT seq FROM sqlite_sequence WHERE name = ?',
-            undef, $name
-        )
-    );
-    $val && _croak("create_sequence: sequence already exists: $name");
-    $log->debug("INSERT INTO sqlite_sequence VALUES('$name',0)");
-    $dbh->do( 'INSERT INTO sqlite_sequence(name,seq) VALUES(?,?+0)',
-        undef, $name, 0 );
+    $dbh->do( 'INSERT INTO ' . $name . '_sequence(seq) VALUES(0)' )
+      or _croak( $dbh->errstr );
+
+    $dbh->do( 'DELETE FROM ' . $name . '_sequence' )
+      or _croak( $dbh->errstr );
 }
 
 sub _currval {
     my $dbh = shift;
     my $name = shift || die 'usage: currval($name)';
 
-    local $dbh->{RaiseError} = 1;
-    local $dbh->{PrintError} = 0;
+    my $ref = $dbh->selectrow_arrayref(
+        'SELECT seq FROM sqlite_sequence WHERE name = ?',
+        undef, $name . '_sequence' );
 
-    my ($val) = (
-        $dbh->selectrow_array(
-            'SELECT seq FROM sqlite_sequence WHERE name = ?',
-            undef, $name
-        )
-    );
+    _croak("currval: unknown sequence: $name") unless $ref;
 
-    if ( defined $val ) {
-        $log->debug( "currval('$name') -> " . $val );
-        return $val;
-    }
-
-    _croak("currval: unknown sequence: $name");
+    $log->debug( "currval('$name') -> " . $ref->[0] );
+    return $ref->[0];
 }
 
 sub _nextval {
     my $dbh = shift;
     my $name = shift || die 'usage: nextval($name)';
 
-    local $dbh->{RaiseError} = 1;
-    local $dbh->{PrintError} = 0;
-    my $val;
+    $dbh->do( 'INSERT INTO ' . $name . '_sequence(seq) VALUES(NULL)' )
+      or _croak( 'nextval: unknown sequence: ' . $name );
 
-    my $i = 0;
-    while (1) {
-        _croak 'could not obtain nextval' if $i++ > 10;
-
-        my ($current) = (
-            $dbh->selectrow_array(
-                'SELECT seq FROM sqlite_sequence WHERE name = ?', undef,
-                $name
-            )
-        );
-        _croak("nextval: unknown sequence: $name") unless defined $current;
-
-        next
-          unless $dbh->do(
-            'UPDATE sqlite_sequence SET seq = ?+0 '
-              . 'WHERE name = ? AND seq = ?+0',
-            undef, $current + 1, $name, $current
-          );
-
-        $log->debug( "nextval('$name') -> " . ( $current + 1 ) );
-
-        return $current + 1;
-    }
+    $dbh->do( 'DELETE FROM ' . $name . '_sequence' );
+    return $dbh->selectrow_arrayref('SELECT last_insert_rowid();')->[0];
 }
 
 sub create_functions {
@@ -288,7 +244,7 @@ DBIx::ThinSQL::SQLite - add various functions to SQLite
 
 =head1 VERSION
 
-0.0.16 (2016-05-20) Development release.
+0.0.17 (2017-01-04) Development release.
 
 =head1 SYNOPSIS
 
@@ -328,6 +284,8 @@ The following functions are exported on request:
 =over
 
 =item create_sqlite_sequence( $dbh )
+
+[DEPRECIATED - no longer required]
 
 Ensure that the C<sqlite_sequence> table exists.  This function must be
 called on the database (once only - the changes are permanent) before
